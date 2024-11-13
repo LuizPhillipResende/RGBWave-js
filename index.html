@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>waves</title>
+    <style>
+        body{
+            background-color: #141414;
+            width: 95%;
+            display: grid;
+        }
+
+        #divWaves{
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        #divWaves div{
+            transition: ease-in-out all 3s;
+            height: 5%;
+        }
+
+    </style>
+</head>
+<body onload="createWave()">
+    <div id="divWaves"></div>
+    <script>
+        const qtd = 100;
+
+        function generateRainbowColors(count) {
+            const rainbowColors = [
+                "#FF0000",
+                "#FF7F00",
+                "#FFFF00",
+                "#00FF00",
+                "#0000FF",
+                "#4B0082",
+                "#8B00FF" 
+            ];
+
+            const colors = [];
+
+            for (let i = 0; i < count; i++) {
+                const colorIndex = (i / count) * (rainbowColors.length - 1);
+                const startColorIndex = Math.floor(colorIndex);
+                const endColorIndex = Math.ceil(colorIndex);
+                const ratio = colorIndex - startColorIndex;
+
+                const startColor = rainbowColors[startColorIndex];
+                const endColor = rainbowColors[endColorIndex];
+
+                const interpolatedColor = interpolateHexColor(startColor, endColor, ratio);
+                colors.push(interpolatedColor);
+            }
+
+            return colors;
+        }
+
+        function interpolateHexColor(startColor, endColor, ratio) {
+            const start = parseInt(startColor.slice(1), 16);
+            const end = parseInt(endColor.slice(1), 16);
+
+            const r = Math.round(((end >> 16) - (start >> 16)) * ratio + (start >> 16));
+            const g = Math.round((((end >> 8) & 0x00FF) - ((start >> 8) & 0x00FF)) * ratio + ((start >> 8) & 0x00FF));
+            const b = Math.round(((end & 0x0000FF) - (start & 0x0000FF)) * ratio + (start & 0x0000FF));
+
+            return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+        }
+
+        function createWave(){
+            const rainbowColorsForObjects = generateRainbowColors(qtd);
+            const width = Math.round(window.innerWidth / qtd);
+
+            document.body.style.height = (window.innerHeight * 0.95) + 'px';
+
+            
+
+            for(var i = 0; i < qtd; i++){
+                let waves = document.createElement("div");
+                waves.style.width = width + 'px';
+                waves.style.backgroundColor = rainbowColorsForObjects[i];
+                waves.classList.add('low');
+                document.getElementById('divWaves').appendChild(waves);
+            }
+            
+        }
+
+        const waveBlock = document.getElementById('divWaves').getElementsByTagName('div');
+
+        function waveLow(i = 0){
+            waveBlock[i].style.height = '95%';
+            var next = i + 1 % qtd;
+            setInterval(() => {
+                waveBlock[i].style.height = '5%';
+            }, 4000);
+        }
+
+        function waving(index = 0){
+            if(index < qtd){
+                setTimeout(() => {
+                    waveLow(index);
+                    index = (index + 3) % qtd;
+                    waving(index);
+                }, 200)
+            }
+        }
+        waving();
+
+    </script>
+</body>
+</html>
